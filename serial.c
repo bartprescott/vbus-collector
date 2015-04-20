@@ -1,11 +1,23 @@
+/*****************************************************************************
+ *
+ * Copyright Hewell Technology Ltd. 2014,2015
+ *
+ * This file is part of vbus-collector.
+ *
+ * vbus-collector is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
 
-//****************************************************************************
-// serial.c
-//
-// (c) Hewell Technology Ltd. 2014
-//
-//****************************************************************************
-
+ * vbus-collector is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with vbus-collector.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ ****************************************************************************/
 
 #include <errno.h>
 #include <stdint.h>
@@ -46,21 +58,18 @@ static int fd = -1;
 
 #endif
 
-int is_data_available(int fd);
-
 static char error_str[128] = "";
 
 //***************************************************************************
-static void debug_log(const uint8_t *buf, uint16_t len, bool out)
-{
-    if (log_fp != NULL)
-    {
+
+static void debug_log(const uint8_t *buf, uint16_t len, bool out) {
+    if (log_fp != NULL) {
         int i;
 
         fprintf(log_fp, "%s ", out ? "\n-->" : "<--");
 
-        for(i = 0; i < len; i++)
-         fprintf(log_fp, "%02X ", buf[i]);
+        for (i = 0; i < len; i++)
+            fprintf(log_fp, "%02X ", buf[i]);
 
         fprintf(log_fp, "\n");
     }
@@ -69,10 +78,9 @@ static void debug_log(const uint8_t *buf, uint16_t len, bool out)
 }
 
 //***************************************************************************
-void debug_comment(const char *comment, ...)
-{
-    if (log_fp != NULL)
-    {
+
+void debug_comment(const char *comment, ...) {
+    if (log_fp != NULL) {
         va_list ap;
 
         va_start(ap, comment);
@@ -82,56 +90,56 @@ void debug_comment(const char *comment, ...)
 }
 
 //***************************************************************************
-const char *serial_get_error(void)
-{
+
+const char *serial_get_error(void) {
     return error_str;
 }
 
 //***************************************************************************
-bool serial_open_port(char *port)
-{
+
+bool serial_open_port(char *port) {
     bool ret = false;
 
 #ifdef __WXMSW__
     if (handle == INVALID_HANDLE_VALUE) {
-		if (*port > 0) {
+        if (*port > 0) {
             char device[64];
 
-            snprintf(device, sizeof(device), "\\\\.\\COM%d", *port);
+            snprintf(device, sizeof (device), "\\\\.\\COM%d", *port);
 
             handle = CreateFile(device,
-                             GENERIC_READ | GENERIC_WRITE,
-                             0,
-                             NULL,
-                             OPEN_EXISTING,
-                             0,
-                             NULL);
+                    GENERIC_READ | GENERIC_WRITE,
+                    0,
+                    NULL,
+                    OPEN_EXISTING,
+                    0,
+                    NULL);
 
             if (handle != INVALID_HANDLE_VALUE) {
-            ret = true;
+                ret = true;
             } else {
-            strncpy(error_str, "Error opening COM port", sizeof(error_str));
+                strncpy(error_str, "Error opening COM port", sizeof (error_str));
             }
         } else {
-         strncpy(error_str, "Invalid COM port", sizeof(error_str));
+            strncpy(error_str, "Invalid COM port", sizeof (error_str));
         }
     } else {
-        strncpy(error_str, "Port already open", sizeof(error_str));
+        strncpy(error_str, "Port already open", sizeof (error_str));
     }
 
     log_fp = fopen("debug.log", "w");
 #else  // !__WXMSW__
     if (fd < 0) {
-		fd = open(port, O_RDWR | O_NONBLOCK); //new open file "DESCRIPTION"!
+        fd = open(port, O_RDWR | O_NONBLOCK); //new open file "DESCRIPTION"!
         if (fd >= 0) {
-			// Port Available
+            // Port Available
             ret = true;
         } else {
-			// Port NOT Available
-        	ret = false;
+            // Port NOT Available
+            ret = false;
         }
     } else {
-        strncpy(error_str, "Port already open", sizeof(error_str));
+        strncpy(error_str, "Port already open", sizeof (error_str));
     }
 #endif // __WXMSW__
 
@@ -140,22 +148,44 @@ bool serial_open_port(char *port)
 
 #ifndef __WXMSW__
 //***************************************************************************
+
 int rate_to_constant(int baudrate) {
 #define B(x) case x: return B##x
-	switch(baudrate) {
-		B(50);     B(75);     B(110);    B(134);    B(150);
-		B(200);    B(300);    B(600);    B(1200);   B(1800);
-		B(2400);   B(4800);   B(9600);   B(19200);  B(38400);
-		B(57600);  B(115200); B(230400); B(460800); B(500000);
-		B(576000); B(921600); B(1000000);B(1152000);B(1500000);
-	default: return 0;
-	}
+    switch (baudrate) {
+            B(50);
+            B(75);
+            B(110);
+            B(134);
+            B(150);
+            B(200);
+            B(300);
+            B(600);
+            B(1200);
+            B(1800);
+            B(2400);
+            B(4800);
+            B(9600);
+            B(19200);
+            B(38400);
+            B(57600);
+            B(115200);
+            B(230400);
+            B(460800);
+            B(500000);
+            B(576000);
+            B(921600);
+            B(1000000);
+            B(1152000);
+            B(1500000);
+        default: return 0;
+    }
 #undef B
 }
 #endif // __WXMSW__
 
 
 //***************************************************************************
+
 bool serial_set_baud_rate(int rate) {
     bool ret = false;
 #ifdef __WXMSW__
@@ -192,15 +222,15 @@ bool serial_set_baud_rate(int rate) {
                     ret = true;
                 }
             } else {
-            	strncpy(error_str,
-                	"Error configuring COM port", sizeof(error_str));
+                strncpy(error_str,
+                        "Error configuring COM port", sizeof (error_str));
             }
         } else {
             strncpy(error_str,
-                 "Error reading COM port settings", sizeof(error_str));
+                    "Error reading COM port settings", sizeof (error_str));
         }
     } else {
-        strncpy(error_str, "Port not open", sizeof(error_str));
+        strncpy(error_str, "Port not open", sizeof (error_str));
     }
 #else // !__WXMSW__
 
@@ -226,31 +256,28 @@ bool serial_set_baud_rate(int rate) {
             serinfo.custom_divisor = 1;
         }
         if (ioctl(fd, TIOCSSERIAL, &serinfo) < 0) {
-            strncpy(error_str, "Error with TIOCSSERIAL (Setting serial line information)", sizeof(error_str));
+            strncpy(error_str, "Error with TIOCSSERIAL (Setting serial line information)", sizeof (error_str));
             return 0;
         }
         if (ioctl(fd, TIOCGSERIAL, &serinfo) < 0) {
-            strncpy(error_str, "Error with TIOCGSERIAL (Getting serial line information)", sizeof(error_str));
+            strncpy(error_str, "Error with TIOCGSERIAL (Getting serial line information)", sizeof (error_str));
             return 0;
         }
         if (serinfo.custom_divisor * rate != serinfo.baud_base) {
-//            warnx("Actual baudrate is %d / %d = %f",
-//                serinfo.baud_base, serinfo.custom_divisor,
-//                (float)serinfo.baud_base / serinfo.custom_divisor);
+            //            warnx("Actual baudrate is %d / %d = %f",
+            //                serinfo.baud_base, serinfo.custom_divisor,
+            //                (float)serinfo.baud_base / serinfo.custom_divisor);
         }
     } else {
-        strncpy(error_str, "Error reading COM port settings", sizeof(error_str));
+        strncpy(error_str, "Error reading COM port settings", sizeof (error_str));
     }
 
     //Set baud rate
     fcntl(fd, F_SETFL, O_NONBLOCK); //Sets file "DESCRIPTOR" to open
     tcgetattr(fd, &attr);
-    /*Currently this code has only been tested when using the non-standard baud
-    rate of 625000. Should you use a baud rate other than this, there will
-    likely be errors. the functions below would likely need changing.*/
-    cfsetispeed(&attr, speed ?: B38400);
-    cfsetospeed(&attr, speed ?: B38400);
-    cfmakeraw(&attr);   /* set serial port to raw mode. Need to move this to own
+    cfsetispeed(&attr, speed ? : B38400);
+    cfsetospeed(&attr, speed ? : B38400);
+    cfmakeraw(&attr); /* set serial port to raw mode. Need to move this to own
                         function call*/
     //attr.c_cflag |= (CLOCAL | CREAD);
     //attr.c_cflag &= ~CRTSCTS;
@@ -265,8 +292,8 @@ bool serial_set_baud_rate(int rate) {
     // no XON/XOFF software flow control
     //
     attr.c_iflag &= ~(IGNBRK | BRKINT | ICRNL |
-                        INLCR | PARMRK | INPCK |
-                        ISTRIP | IXON | IXOFF | IXANY);
+            INLCR | PARMRK | INPCK |
+            ISTRIP | IXON | IXOFF | IXANY);
     //
     // Output flags - Turn off output processing
     // no CR to NL translation, no NL to CR-NL translation,
@@ -292,7 +319,7 @@ bool serial_set_baud_rate(int rate) {
     attr.c_cflag &= ~(CSIZE | CRTSCTS | PARENB);
 
     if (tcsetattr(fd, TCSANOW, &attr) != 0) {
-        strncpy(error_str, "Error reading COM port settings", sizeof(error_str));
+        strncpy(error_str, "Error reading COM port settings", sizeof (error_str));
     } else {
         ret = true;
     }
@@ -302,8 +329,8 @@ bool serial_set_baud_rate(int rate) {
 }
 
 //***************************************************************************
-bool serial_close_port(void)
-{
+
+bool serial_close_port(void) {
 #ifdef __WXMSW__
     if (handle != INVALID_HANDLE_VALUE) {
         CloseHandle(handle);
@@ -324,101 +351,97 @@ bool serial_close_port(void)
 
 
 //***************************************************************************
+
 ssize_t serial_write(const void *buf, size_t count) {
     ssize_t ret = -1;
 #ifdef __WXMSW__
-	DWORD written;
-	if (WriteFile(handle, buf, count, &written, NULL)){
-		ret = written;
+    DWORD written;
+    if (WriteFile(handle, buf, count, &written, NULL)) {
+        ret = written;
     }
 #else
     ret = write(fd, buf, count);
 #endif
-	debug_log(buf, ret, true);
+    debug_log(buf, ret, true);
     return ret;
 }
 
 //***************************************************************************
+
+int is_data_available(int fd) {
+#ifdef __WXMSW__
+    return 1;
+#else // !__WXMSW__
+    int ret;
+    fd_set rd, err;
+    struct timeval wait = {1, 0}; //Wait 1 second
+    FD_ZERO(&rd);
+    FD_SET(fd, &rd);
+    ret = select(fd + 1, &rd, NULL, &err, &wait);
+
+    // Timeout expired...
+    if (ret == 0) {
+        return ret;
+    }
+    if (ret > 0) {
+        //An event is pending
+        if (FD_ISSET(fd, &rd)) {
+            return ret; // A "read" is now available
+        }
+    } else if (ret < 0) {
+        // An EINTR error occurred, just print it to stdout
+        if (errno != EINTR) {
+            perror("select");
+            printf("Error on select(): %s\n", strerror(errno));
+            errno = 0;
+            ret = -1;
+        } else {
+            //Ignore EINTR
+            //errno = 0;
+            //perror("Xselect");
+            //printf("XError on select(): %s\n", strerror(errno));
+            errno = 0;
+            ret = 0; //Ignore EINTR, treat as a timeout
+        }
+    }
+    return ret;
+#endif // __WXMSW__
+}
+
+//***************************************************************************
+
 ssize_t serial_read(void *buf, size_t count) {
     ssize_t ret = -1;
     ssize_t bytes_recieved;
     void *buf_ptr = buf;
     ssize_t original_count = count;
 
-    while (count > 0)
-    {
+    while (count > 0) {
         int status_data_available = is_data_available(fd);
         // Data may be available...
-        if (status_data_available > 0)
-        {
+        if (status_data_available > 0) {
 #ifdef __WXMSW__
-    		DWORD read;
-    		if (ReadFile(handle, buf, count, &read, NULL)) {
-				bytes_recieved = read;
-    		}
+            DWORD read;
+            if (ReadFile(handle, buf, count, &read, NULL)) {
+                bytes_recieved = read;
+            }
 #else
             bytes_recieved = read(fd, buf_ptr, count);
 #endif
             buf_ptr += bytes_recieved;
             count -= bytes_recieved;
-        }
-        else if (status_data_available == 0)
-        {
+        } else if (status_data_available == 0) {
             // Timed out - nothing to read!
             // Hence "original_count" will equal "count"
             break;
-        }
-        else if (status_data_available < 0)
-        {
+        } else if (status_data_available < 0) {
             // Error in SELECT function
             // Hope this doesn't happen!
             return -1;
         }
     }
     ret = original_count - count; //For a data packet this value should be 247
-	debug_log(buf, ret, false);
+    debug_log(buf, ret, false);
     return ret;
 }
-
-//***************************************************************************
-int is_data_available(int fd) {
-#ifdef __WXMSW__
-	return 1;
-#else // !__WXMSW__
-	int ret;
-	fd_set rd, err;
-	struct timeval wait = {1, 0};  //Wait 1 second
-	FD_ZERO(&rd);
-	FD_SET(fd, &rd);
-	ret = select(fd + 1, &rd, NULL, &err, &wait);
-
-	// Timeout expired...
-	if (ret == 0) {
-		return ret;
-	} 
-	if (ret > 0) {
-		//An event is pending
-		if (FD_ISSET(fd, &rd)) {
-			return ret;  // A "read" is now available
-		}
-	} else if (ret < 0) {
-		// An EINTR error occurred, just print it to stdout
-		if (errno != EINTR) {
-			perror("select");
-			printf("Error on select(): %s\n", strerror(errno));
-			errno = 0;
-			ret = -1;
-		} else {
-			//Ignore EINTR
-			//errno = 0;
-			//perror("Xselect");
-			//printf("XError on select(): %s\n", strerror(errno));
-			errno = 0;
-			ret = 0; //Ignore EINTR, treat as a timeout
-		}
-	}
-	return ret;
-#endif // __WXMSW__
-}
-
 
