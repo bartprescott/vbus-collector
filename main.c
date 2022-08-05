@@ -110,9 +110,9 @@ int main(int argc, char *argv[]) {
         }
         //printf("%02x ", serial_buffer[i]);
         i++;
-        if (i % 16 == 0) {
+        //if (i % 16 == 0) {
             //printf("\n");
-        }
+        //}
 
         if (headerSync) {
             if (i > sizeof (VBUS_HEADER)) {
