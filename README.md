@@ -1,26 +1,11 @@
-# vbus-collector
-
-/*****************************************************************************
- *
- * Copyright Hewell Technology Ltd. 2014,2015
- *
- * This file is part of vbus-collector.
- *
- * vbus-collector is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
-
- * vbus-collector is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with vbus-collector.  If not, see <http://www.gnu.org/licenses/>.
- *
- ****************************************************************************/
+## vbus-collector
 
 
+Program to read serial data from a Resol DeltaSol BP Plus controller.
+
+
+Data from the Reesol DeltaSol BS Plus controller is converted to serial data via a RS485 adapter or
+Resol USB adapter. This program reads the serial data from the serial port and outputs the decoded
+information to stdout
 
 
